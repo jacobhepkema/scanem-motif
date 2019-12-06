@@ -1,35 +1,38 @@
 Bootstrap: docker
-From: debian:testing
+From: ubuntu:18.04
 
-# Based on https://github.com/ddiez/meme/blob/master/Dockerfile
+# Based on https://github.com/icaoberg/docker-meme-suite/blob/master/Dockerfile
 
 %labels
   Maintainer @jacobhepkema
-  Version v0.2
-
-%environment
-  # Change MEME version if necessary
-  VERSION=5.1.0
+  Version v0.3
   
 %post
   # Install prerequisites
+  apt-get update && apt-get install -y libopenmpi-dev openmpi-bin ghostscript libgs-dev libgd-dev libexpat1-dev zlib1g-dev libxml2-dev autoconf automake libtool libhtml-template-compiled-perl libxml-opml-simplegen-perl libxml-libxml-debugging-perl sudo curl openssh-server
   
-  apt-get update && apt-get install -y --no-install-recommends apt-utils
-  apt-get update
-  apt-get install -y build-essential python python3 zlib1g-dev libopenmpi-dev openmpi-bin ssh libxml2 libxslt1.1 libxml2-dev libxslt1-dev ghostscript libxml-sax-expat-perl curl
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Log::Log4perl'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Math::CDF'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install CGI'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install HTML::PullParser'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install HTML::Template'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Simple'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Parser::Expat'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::LibXML'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::LibXML::Simple'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::SOAP11'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::WSDL11'
+  PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::Transport::SOAPHTTP'
   
+  mkdir /opt/meme
   # Get meme suite
-  curl http://meme-suite.org/meme-software/$VERSION/meme-$VERSION.tar.gz > /tmp/meme_$VERSION.tar.gz
-  cd /tmp && tar xfzv meme_$VERSION.tar.gz && cd /tmp/meme-$VERSION 
-  ./configure --prefix /opt && make && make install
+  curl http://meme-suite.org/meme-software/5.1.0/meme-5.1.0.tar.gz  > /opt/meme/meme-5.1.0.tar.gz 
+  cd /opt/meme
   
-  # Remove tar and dir that were used for installation
-  rm /tmp/meme_$VERSION.tar.gz && rm -rf /tmp/meme_$VERSION
+  tar zxvf meme-5.1.0.tar.gz && rm -fv meme-5.1.0.tar.gz
+  cd /opt/meme/meme-5.1.0 && ./configure --prefix=/opt  --enable-build-libxml2 --enable-build-libxslt  --with-url=http://meme-suite.org && make && make install && rm -rfv /opt/meme
   
-  # Remove prerequisites that were only essential for installation of meme suite
-  apt-get purge -y build-essential zlib1g-dev libopenmpi-dev curl libxml2-dev libxslt1-dev && apt-get autoremove -y
-  
-  # Executables are in this folder, add to system env PATH
   export PATH=/opt/bin:$PATH
   
 # smoke test
