@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: debian:buster-slim
+From: debian:testing
 
 # Based on https://github.com/ddiez/meme/blob/master/Dockerfile
 
