@@ -1,5 +1,7 @@
 FROM debian:buster-slim
 
+# BASED ON https://github.com/ddiez/meme/blob/master/Dockerfile
+
 # Add \_X wih X being the patch number (if needed).
 ENV VERSION=5.1.0
 
