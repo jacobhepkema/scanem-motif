@@ -5,7 +5,7 @@ From: debian:testing
 
 %labels
   Maintainer @jacobhepkema
-  Version v0.1
+  Version v0.2
 
 %environment
   # Change MEME version if necessary
