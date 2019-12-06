@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:testing
 
 # BASED ON https://github.com/ddiez/meme/blob/master/Dockerfile
 
