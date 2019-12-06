@@ -1,46 +1,53 @@
-FROM debian:testing
+FROM ubuntu:18.04
 
-# BASED ON https://github.com/ddiez/meme/blob/master/Dockerfile
+# from https://github.com/icaoberg/docker-meme-suite/blob/master/Dockerfile
 
-# Add \_X wih X being the patch number (if needed).
-ENV VERSION=5.1.0
+RUN apt-get update && apt-get install -y \
+    libopenmpi-dev \
+    openmpi-bin \
+    ghostscript \
+    libgs-dev \
+    libgd-dev \
+    libexpat1-dev \
+    zlib1g-dev \
+    libxml2-dev \
+    autoconf automake libtool \
+    libhtml-template-compiled-perl \
+    libxml-opml-simplegen-perl \
+    libxml-libxml-debugging-perl \
+    sudo \
+    openssh-server
 
-# Install software.
-RUN apt-get update && \
-    apt-get install -y \
-      build-essential \
-      python \
-      python3 \
-      zlib1g-dev \
-      libopenmpi-dev openmpi-bin \
-      ssh \
-      libxml2 \
-      libxslt1.1 \
-      libxml2-dev \
-      libxslt1-dev \
-      ghostscript \
-      libxml-sax-expat-perl \
-      curl \
-      && \
-    curl http://meme-suite.org/meme-software/$VERSION/meme-$VERSION.tar.gz > /tmp/meme_$VERSION.tar.gz && \
-    cd /tmp && tar xfzv meme_$VERSION.tar.gz && \
-    cd /tmp/meme-$VERSION && \
-    ./configure --prefix /opt && \
-    make && \
-    make install && \
-    rm /tmp/meme_$VERSION.tar.gz && \
-    rm -rf /tmp/meme_$VERSION && \
-    apt-get purge -y \
-      build-essential \
-      zlib1g-dev \
-      libopenmpi-dev \
-      curl \
-      libxml2-dev \
-      libxslt1-dev \
-      && \
-    apt-get autoremove -y
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Log::Log4perl'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Math::CDF'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install CGI'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install HTML::PullParser'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install HTML::Template'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Simple'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Parser::Expat'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::LibXML'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::LibXML::Simple'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::SOAP11'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::WSDL11'
+RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install XML::Compile::Transport::SOAPHTTP'
 
-# Add /opt/bin to PATH.
-ENV PATH /opt/bin:$PATH
+RUN mkdir /opt/meme
+ADD http://meme-suite.org/meme-software/5.1.0/meme-5.1.0.tar.gz /opt/meme
+WORKDIR /opt/meme/
 
-CMD ["/bin/bash"]
+RUN tar zxvf meme-5.1.0.tar.gz && rm -fv meme-5.1.0.tar.gz
+RUN cd /opt/meme/meme-5.1.0 && \
+	./configure --prefix=/opt  --enable-build-libxml2 --enable-build-libxslt  --with-url=http://meme-suite.org && \ 
+	make && \
+	make install && \
+        rm -rfv /opt/meme
+ENV PATH="/opt/bin:${PATH}"
+
+RUN adduser --disabled-password --gecos '' scanem
+RUN adduser scanem sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER scanem
+
+CMD /bin/bash
+WORKDIR /home/scanem
