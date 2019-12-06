@@ -13,6 +13,8 @@ From: debian:testing
   
 %post
   # Install prerequisites
+  
+  apt-get update && apt-get install -y --no-install-recommends apt-utils
   apt-get update
   apt-get install -y build-essential python python3 zlib1g-dev libopenmpi-dev openmpi-bin ssh libxml2 libxslt1.1 libxml2-dev libxslt1-dev ghostscript libxml-sax-expat-perl curl
   
