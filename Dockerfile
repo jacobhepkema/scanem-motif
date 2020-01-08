@@ -3,6 +3,7 @@ FROM ubuntu:18.04
 # from https://github.com/icaoberg/docker-meme-suite/blob/master/Dockerfile
 
 RUN apt-get update && apt-get install -y \
+    procps \
     libopenmpi-dev \
     openmpi-bin \
     ghostscript \
