@@ -9,7 +9,7 @@ From: ubuntu:18.04
   
 %post
   # Install prerequisites
-  apt-get update && apt-get install -y libopenmpi-dev openmpi-bin ghostscript libgs-dev libgd-dev libexpat1-dev zlib1g-dev libxml2-dev autoconf automake libtool libhtml-template-compiled-perl libxml-opml-simplegen-perl libxml-libxml-debugging-perl sudo curl openssh-server
+  apt-get update && apt-get install -y procps libopenmpi-dev openmpi-bin ghostscript libgs-dev libgd-dev libexpat1-dev zlib1g-dev libxml2-dev autoconf automake libtool libhtml-template-compiled-perl libxml-opml-simplegen-perl libxml-libxml-debugging-perl sudo curl openssh-server
   
   PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Log::Log4perl'
   PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'install Math::CDF'
